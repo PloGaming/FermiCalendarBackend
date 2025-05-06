@@ -66,6 +66,11 @@ app.get('/users', verifyFirebaseToken, async (req, res) => {
     }
 });
 
+// normal page
+app.get('/', async (req, res) => {
+    res.status(200).send();
+})
+
 // Start the server
 app.listen(process.env.PORT, () => {
     console.log(`Server running on http://localhost:${process.env.PORT}`);
