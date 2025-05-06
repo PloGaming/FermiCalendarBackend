@@ -20,6 +20,7 @@ const db = admin.database();
 
 // Middleware
 const verifyFirebaseToken = async (req, res, next) => {
+    console.log("[LOG]" + req)
     const authHeader = req.headers.authorization;
   
     // Check if Authorization header is present and well-formed
@@ -73,5 +74,5 @@ app.get('/', async (req, res) => {
 
 // Start the server
 app.listen(process.env.PORT, () => {
-    console.log(`Server running on http://localhost:${process.env.PORT}`);
+    console.log(`Running on PORT: ${process.env.PORT}`);
 });
