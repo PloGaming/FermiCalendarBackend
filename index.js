@@ -16,29 +16,55 @@ admin.initializeApp({
 // Reference to Realtime Database or Firestore
 const db = admin.database();
 
-// Example endpoint: Add user
-app.post('/users', async (req, res) => {
-    const { username, email } = req.body;
+// Middleware
+const verifyFirebaseToken = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+  
+    // Check if Authorization header is present and well-formed
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).send({ error: 'Unauthorized' });
+    }
+  
+    // Extract the token from the header
+    const idToken = authHeader.split('Bearer ')[1];
+  
     try {
-        await db.ref('users').push({ username, email }); 
+        // Verify the token using Firebase Admin SDK
+        const decodedToken = await admin.auth().verifyIdToken(idToken);
+    
+        // Save the decoded user data to request for use in routes
+        req.user = decodedToken;
+    
+        next(); // Go to the next middleware or route handler
+    } catch (error) {
+        return res.status(401).send({ error: 'Invalid or expired token' });
+    }
+};
+
+// Add user
+app.post('/users', verifyFirebaseToken, async (req, res) => {
+    const { name, schoolClass } = req.body;
+    try {
+        await db.ref(`users/${req.user.uid}`).set({ name: name, schoolClass: schoolClass }); 
         res.status(200).send('User added successfully');
     } catch (err) {
         res.status(500).send('Error adding user: ' + err.message);
     }
 });
 
-// Example endpoint: Get all users
-app.get('/users', async (req, res) => {
+// Get user info
+app.get('/users', verifyFirebaseToken, async (req, res) => {
     try {
-        const snapshot = await db.ref('users').once('value');
-        res.status(200).json(snapshot.val());
-    } catch (err) {
-        res.status(500).send('Error retrieving users: ' + err.message);
+        const snapshot = await db.ref(`users/${req.user.uid}`).once('value');
+        if (!snapshot.exists()) return res.status(404).send({ message: 'User not found' });
+    
+        res.status(200).send(snapshot.val());
+    } catch (error) {
+        res.status(500).send({ error: error.message });
     }
 });
 
 // Start the server
-const PORT = 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+app.listen(process.env.SERVER_PORT, () => {
+    console.log(`Server running on http://localhost:${process.env.SERVER_PORT}`);
 });
