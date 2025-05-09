@@ -66,7 +66,7 @@ app.post('/users', verifyFirebaseToken, async (req, res) => {
 });
 
 // Get user info
-app.get('/users', printRequestInformation, verifyFirebaseToken, async (req, res) => {
+app.get('/users', verifyFirebaseToken, async (req, res) => {
     try {
         const snapshot = await db.ref(`users/${req.user.uid}`).once('value');
         if (!snapshot.exists()) return res.status(404).send({ message: 'User not found' });
