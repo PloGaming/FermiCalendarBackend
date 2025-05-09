@@ -18,8 +18,18 @@ admin.initializeApp({
 const db = admin.database();
 
 // Middleware
+const printRequestInformation = async (req, res, next) => {
+    console.log('--- Incoming Request ---');
+    console.log('Method:', req.method);
+    console.log('URL:', req.originalUrl);
+    console.log('Headers:', req.headers);
+    console.log('Body:', req.body);
+    console.log('------------------------');
+    next();
+}
+
+// Middleware
 const verifyFirebaseToken = async (req, res, next) => {
-    console.log("[LOG]" + req)
     const authHeader = req.headers.authorization;
   
     // Check if Authorization header is present and well-formed
@@ -44,7 +54,7 @@ const verifyFirebaseToken = async (req, res, next) => {
 };
 
 // Add user
-app.post('/users', verifyFirebaseToken, async (req, res) => {
+app.post('/users', printRequestInformation, verifyFirebaseToken, async (req, res) => {
     const { name, schoolClass } = req.body;
     try {
         await db.ref(`users/${req.user.uid}`).set({ name: name, schoolClass: schoolClass }); 
@@ -55,7 +65,7 @@ app.post('/users', verifyFirebaseToken, async (req, res) => {
 });
 
 // Get user info
-app.get('/users', verifyFirebaseToken, async (req, res) => {
+app.get('/users', printRequestInformation, verifyFirebaseToken, async (req, res) => {
     try {
         const snapshot = await db.ref(`users/${req.user.uid}`).once('value');
         if (!snapshot.exists()) return res.status(404).send({ message: 'User not found' });
