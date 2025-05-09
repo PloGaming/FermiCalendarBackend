@@ -1,4 +1,3 @@
-require('dotenv').config()
 const express = require('express');
 const admin = require('firebase-admin');
 const app = express();
@@ -9,7 +8,7 @@ app.use(express.json()); // For parsing application/json
 admin.initializeApp({
     credential: admin.credential.cert({
         projectId: process.env.FIREBASE_PROJECT_ID,
-        privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        privateKey: process.env.FIREBASE_PRIVATE_KEY,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
       }),
     databaseURL: process.env.FIREBASE_DB_URL // For Realtime DB
