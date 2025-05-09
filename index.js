@@ -18,7 +18,7 @@ admin.initializeApp({
 const db = admin.database();
 
 // Middleware
-const printRequestInformation = async (req, res, next) => {
+app.use((req, res, next) => {
     console.log('--- Incoming Request ---');
     console.log('Method:', req.method);
     console.log('URL:', req.originalUrl);
@@ -26,7 +26,7 @@ const printRequestInformation = async (req, res, next) => {
     console.log('Body:', req.body);
     console.log('------------------------');
     next();
-}
+  });
 
 // Middleware
 const verifyFirebaseToken = async (req, res, next) => {
@@ -54,7 +54,8 @@ const verifyFirebaseToken = async (req, res, next) => {
 };
 
 // Add user
-app.post('/users', printRequestInformation, verifyFirebaseToken, async (req, res) => {
+app.post('/users', verifyFirebaseToken, async (req, res) => {
+    console.log("verifyFirebaseToken");
     const { name, schoolClass } = req.body;
     try {
         await db.ref(`users/${req.user.uid}`).set({ name: name, schoolClass: schoolClass }); 
