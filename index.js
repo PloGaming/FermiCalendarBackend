@@ -18,17 +18,6 @@ admin.initializeApp({
 const db = admin.database();
 
 // Middleware
-app.use((req, res, next) => {
-    console.log('--- Incoming Request ---');
-    console.log('Method:', req.method);
-    console.log('URL:', req.originalUrl);
-    console.log('Headers:', req.headers);
-    console.log('Body:', req.body);
-    console.log('------------------------');
-    next();
-  });
-
-// Middleware
 const verifyFirebaseToken = async (req, res, next) => {
     const authHeader = req.headers.authorization;
   
