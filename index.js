@@ -77,6 +77,10 @@ app.get('/users', verifyFirebaseToken, async (req, res) => {
     }
 });
 
+app.get('/classes', async (req, res) => {
+    res.status(200).send(require("./classes.json"));
+});
+
 // normal page
 app.get('/', async (req, res) => {
     res.status(200).send();
